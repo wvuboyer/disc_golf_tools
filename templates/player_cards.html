@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Disc Golf Tools - Player Cards{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active" aria-current="page">Player Cards</li>
+{% endblock %}
+
+{% block content %}
+    <h1>Generate Player Cards</h1>
+    <ul>
+        <li>One Player per line.</li>
+        <li>Player name and division, comma separated.</li>
+        <li>Player names limited to 32 characters.</li>
+        <li>Division limited to 5 characters.</li>
+        <li>1000 maximum players.</li>
+    </ul>
+    <div class="container mt-4"></div>
+        <form id="playerCardForm" method="post">
+            <div class="mb-3">
+                <label for="playerData" class="form-label">Player Name,Division</label>
+                <textarea class="form-control" id="playerData" name="playerData" rows="12">{% if csv_data %}{{ csv_data|safe }}{% endif %}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+{% endblock %}
