@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Disc Golf Tools - Payout Cards{% endblock %}
+
+{% block breadcrumb %}
+    <li class="breadcrumb-item active" aria-current="page">Payout Cards</li>
+{% endblock %}
+
+{% block content %}
+    <h1>Generate Payout Cards</h1>
+    <div class="container mt-4"></div>
+        <form id="payoutCardForm" method="post">
+            <div class="mb-3">
+                <label for="tournamentId" class="form-label">Tournament ID</label>
+                <input type="text" class="form-control" id="tournamentId" name="tournamentId" value="{% if tournament_id %}{{ tournament_id }}{% endif %}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+{% endblock %}
