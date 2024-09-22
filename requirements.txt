@@ -1,2 +1,4 @@
 Flask
 reportlab
+beautifulsoup4
+requests
