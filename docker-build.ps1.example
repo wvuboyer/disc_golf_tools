@@ -1,0 +1,15 @@
+# create env file with these variables.
+#$env:giteaUsername = "CHAMGEME"
+#$env:giteaRepoName = "CHAMGEME"
+#$env:giteaInstanceUrl = "CHAMGEME"
+#$env:imageTag = "CHAMGEME"
+#$env:personalAccessToken = "CHAMGEME"
+
+# Build the Docker image
+docker build -t "$giteaInstanceUrl/$giteaUsername/${giteaRepoName}:$imageTag" .
+
+# Log in to Gitea Container Registry using the personal access token
+docker login "$giteaInstanceUrl" -u ${giteaUsername} -p $personalAccessToken
+
+# Push the image
+docker push "$giteaInstanceUrl/$giteaUsername/${giteaRepoName}:$imageTag"
