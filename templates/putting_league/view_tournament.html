@@ -29,4 +29,10 @@
     <a href="/putting_league/tournament/{{ tournament.id }}/results" class="btn btn-success mt-3">View Results</a>
 {% endif %}
 
+<script>
+    // Set focus on the name input field when the page is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('name').focus();
+    });
+</script>
 {% endblock %}

@@ -11,6 +11,7 @@ class Tournament(db.Model):
     bracket_generated = db.Column(db.Boolean, default=False)
     session_uuid = db.Column(db.String(36), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    format = db.Column(db.String(20), nullable=False)
 
 
 class Player(db.Model):

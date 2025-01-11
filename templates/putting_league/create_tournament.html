@@ -10,6 +10,13 @@
         <label for="lanes" class="form-label">Number of Lanes</label>
         <input type="number" class="form-control" id="lanes" name="lanes" required>
     </div>
+    <div class="mb-3">
+        <label for="format" class="form-label">Format:</label>
+        <select id="format" name="format" class="form-select" required>
+            <option value="round_robin">Round Robin</option>
+            <!--<option value="swiss">Swiss</option>-->
+        </select>
+    </div>
     <button type="submit" class="btn btn-success">Create</button>
 </form>
 {% endblock %}

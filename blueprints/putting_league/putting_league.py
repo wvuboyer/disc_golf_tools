@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta
 from flask import Blueprint, render_template, redirect, url_for, request, session
 import random
 
 from app import db
 from blueprints.putting_league.models import Tournament, Player, Match
+
 
 putting_league = Blueprint(
     'putting_league',
@@ -14,13 +14,6 @@ putting_league = Blueprint(
 
 @putting_league.route('/')
 def index():
-    # clean up old tournaments
-    cutoff_time = datetime.utcnow() - timedelta(hours=48)
-    old_tournaments = Tournament.query.filter(Tournament.created_at < cutoff_time).all()
-    for tournament in old_tournaments:
-        db.session.delete(tournament)
-    db.session.commit()
-
     tournaments = Tournament.query.filter_by(session_uuid=session['uuid']).all()
     return render_template('putting_league/index.html', tournaments=tournaments)
 
@@ -30,7 +23,8 @@ def create_tournament():
     if request.method == 'POST':
         name = request.form['name']
         lanes = int(request.form['lanes'])
-        tournament = Tournament(name=name, lanes=lanes, session_uuid=session['uuid'])
+        format = request.form['format']
+        tournament = Tournament(name=name, lanes=lanes, session_uuid=session['uuid'], format=format)
         db.session.add(tournament)
         db.session.commit()
         return redirect(url_for('putting_league.index'))
@@ -76,8 +70,20 @@ def generate_bracket(tournament_id):
         return "Bracket already generated.", 400
 
     players = Player.query.filter_by(tournament_id=tournament_id).all()
-    matchups = []
 
+    if tournament.format == 'round_robin':
+        generate_round_robin_bracket(tournament, players)
+    else:
+        tournament.format == 'round_robin'
+        generate_round_robin_bracket(tournament, players)
+
+    tournament.bracket_generated = True
+    db.session.commit()
+    return redirect(url_for('putting_league.view_tournament', tournament_id=tournament_id))
+
+
+def generate_round_robin_bracket(tournament, players):
+    matchups = []
     for i, player1 in enumerate(players):
         for player2 in players[i+1:]:
             matchups.append((player1, player2))
@@ -87,14 +93,10 @@ def generate_bracket(tournament_id):
         match = Match(
             player1_id=player1.id,
             player2_id=player2.id,
-            tournament_id=tournament_id,
+            tournament_id=tournament.id,
             lane=(idx % tournament.lanes) + 1
         )
         db.session.add(match)
-
-    tournament.bracket_generated = True
-    db.session.commit()
-    return redirect(url_for('putting_league.view_tournament', tournament_id=tournament_id))
 
 
 @putting_league.route('/tournament/<int:tournament_id>/matches')
@@ -158,6 +160,7 @@ def calculate_results(tournament_id):
     ]
 
     return render_template('putting_league/results.html', results=results)
+
 
 @putting_league.route('/delete_all')
 def delete_all_tournaments():
