@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Disc Golf Tournaments</h1>
+<a href="/putting_league/tournament/create" class="btn btn-primary mb-3">Create New Tournament</a>
+<ul class="list-group">
+    {% for tournament in tournaments %}
+        <li class="list-group-item">
+            <a href="/putting_league/tournament/{{ tournament.id }}">{{ tournament.name }}</a>
+        </li>
+    {% endfor %}
+</ul>
+<a href="/putting_league/delete_all" class="btn btn-danger mt-3">Delete All</a>
+{{ session }}
+{% endblock %}

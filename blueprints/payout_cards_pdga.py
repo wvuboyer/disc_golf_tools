@@ -1,16 +1,11 @@
-import csv
 import datetime
 import requests
 from io import BytesIO
 from pprint import pprint
-from bs4 import BeautifulSoup
 from flask import Blueprint, render_template, flash, request, Response, redirect, url_for
 from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 
 
 payout_cards_pdga_bp = Blueprint('payout_cards_pdga', __name__)
@@ -27,14 +22,21 @@ def payout_cards_post():
     if not tournament_id.isnumeric():
         flash("Invalid tournament ID", "danger")
         return redirect(url_for('payout_cards.payout_cards_get'))
-    
+
+    correlated_results = correlate_payouts(tournament_id)
+
+    for player in correlated_results:
+        print(f"Name: {player['name']}, Place: {player['place']}, Payout: ${player['payout']}")
+
+    return "1"
+
     parameters = {"TournID": tournament_id, "AdditionalEventInfo": "true"}
     tourney_result = requests.get(f"https://www.pdga.com/apps/tournament/live-api/live_results_fetch_event", params=parameters)
     tourney_json = tourney_result.json()
 
     tournament_name = tourney_json["data"]["Name"]
     tournament_location = tourney_json["data"]["Location"]
-    tournament_rounds = tourney_json["data"]["Rounds"]
+    
     tournament_date_range = tourney_json["data"]["DateRange"]
     tournament_tier = tourney_json["data"]["Tier"]
 
@@ -60,7 +62,7 @@ def payout_cards_post():
                     f"+ {score['ToPar']}" if score["ToPar"] > 0 else str(score["ToPar"])
                 ]
             )
-    
+    pprint(divisions)
     tourney_info = f"{tournament_name}, a PDGA {tournament_tier} Tier."
     tourney_info_two = f"{tournament_location} on {tournament_date_range}."
 
@@ -86,10 +88,10 @@ def payout_cards_post():
                 c.setFont('Helvetica-Bold', 32)
                 c.drawString(1 * inch, 9.5 * inch, output_string)
                 c.setFont('Helvetica-Bold', 28)
-                c.drawString(1 * inch, 8.75 * inch, f"{player[1]} : {player[4]}")
+                c.drawString(1 * inch, 8.75 * inch, f"{player[1]} : {player[2]}")
                 c.line(0, 5.5 * inch, 100 * inch, 5.5 * inch)
                 c.setFont('Helvetica-Bold', 64)
-                c.drawString(1 * inch, 7.5 * inch, player[2])
+                #c.drawString(1 * inch, 7.5 * inch, player[3])
                 c.setFont('Helvetica-Bold', 12)
                 c.drawString(1 * inch, 6.75 * inch, tourney_info)
                 c.drawString(1 * inch, 6.5 * inch, tourney_info_two)
@@ -100,9 +102,9 @@ def payout_cards_post():
                 c.setFont('Helvetica-Bold', 32)
                 c.drawString(1 * inch, 4 * inch, output_string)
                 c.setFont('Helvetica-Bold', 28)
-                c.drawString(1 * inch, 3.25 * inch, f"{player[1]} : {player[4]}")
+                c.drawString(1 * inch, 3.25 * inch, f"{player[1]} : {player[2]}")
                 c.setFont('Helvetica-Bold', 64)
-                c.drawString(1 * inch, 2 * inch, player[2])
+                #c.drawString(1 * inch, 2 * inch, player[2])
                 c.setFont('Helvetica-Bold', 12)
                 c.drawString(1 * inch, 1.25 * inch, tourney_info)
                 c.drawString(1 * inch, 1 * inch, tourney_info_two)
