@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Swiss-Format Putting League</h1>
+<p>The Swiss-system tournament is a non-eliminating tournament format that features a predetermined number of rounds of competition.  The goal of Swiss pairings is for players with similar cumulative scores to be paired with each other in each round.</p>
+<p>The Monrad pairing system is a variation of the Swiss system where players are ranked in order of their current standing after each round, and then paired against the next highest-ranked player they have not already played.  This system is often used in chess tournaments in Denmark and Norway.</p>
+<p>In a Swiss-format tournament with Monrad pairing, players are initially ranked by their seeding or rating.  After each round, players are re-ranked based on their accumulated scores, and then paired according to the Monrad system.  This means that the top two players will always be paired against each other, the next two highest-ranked players will be paired, and so on.</p>
+<p>This pairing system tends to result in more decisive games early in the tournament, as the top players are paired against each other from the start.  It can also be more volatile, as a few early losses can significantly impact a player's ranking and their chances of winning the tournament.</p>
+<p>Overall, the Swiss-format with Monrad pairing is a unique and challenging tournament format that can be a fun and exciting way to compete.</p>
+<hr />
+<p>Below are the current tournaments tied to your session. If you close your browser window or clear your cache, your tournament will be lost.</p>
+<hr />
+<a href="{{ url_for('putting_league_swiss.create_tournament') }}" class="btn btn-primary mb-3">Create New Tournament</a>
+<ul class="list-group">
+    {% for tournament in tournaments %}
+        <li class="list-group-item">
+            <a href="/putting_league_swiss/add_players/{{ tournament.id }}">{{ tournament.name }}</a>
+        </li>
+    {% endfor %}
+</ul>
+{% if tournaments|length > 0 %}<a href="/putting_league_swiss/delete_all" class="btn btn-danger mt-3">Delete All</a>{% endif %}
+{% endblock %}

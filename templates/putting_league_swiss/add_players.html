@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="my-4">Add Players to {{ tournament.name }}</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label for="player_name" class="form-label">Player Name:</label>
+        <input type="text" class="form-control" name="player_name" id="player_name" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Player</button>
+</form>
+
+<h3 class="my-4">Current Players:</h3>
+<ul class="list-group">
+    {% for player in tournament.players %}
+        <li class="list-group-item">{{ player.name }}</li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('putting_league_swiss.start_tournament', tournament_id=tournament.id) }}" class="my-4 btn btn-success">Start Tournament</a>
+{% endblock %}

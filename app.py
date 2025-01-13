@@ -9,6 +9,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     app.secret_key = uuid.uuid4().hex
+
     db.init_app(app)
     with app.app_context():
         db.create_all()
@@ -17,13 +18,15 @@ def create_app():
     from blueprints.player_cards import player_cards_bp
     from blueprints.payout_cards import payout_cards_bp
     from blueprints.payout_cards_pdga import payout_cards_pdga_bp
-    from blueprints.putting_league.putting_league import putting_league
+    from blueprints.putting_league.putting_league import putting_league as putting_league_rr
+    from blueprints.putting_league.putting_league_swiss import putting_league_swiss
 
     app.register_blueprint(base_bp)
     app.register_blueprint(player_cards_bp)
     app.register_blueprint(payout_cards_bp)
     app.register_blueprint(payout_cards_pdga_bp)
-    app.register_blueprint(putting_league)
+    app.register_blueprint(putting_league_rr)
+    app.register_blueprint(putting_league_swiss)
 
     @app.before_request
     def before_request():

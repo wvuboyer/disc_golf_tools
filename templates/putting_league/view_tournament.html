@@ -3,7 +3,7 @@
 <h1>{{ tournament.name }}</h1>
 <h2>Players</h2>
 {% if not tournament.bracket_generated %}
-    <form method="POST" action="/putting_league/tournament/{{ tournament.id }}/add_player">
+    <form method="POST" action="/putting_league_rr/tournament/{{ tournament.id }}/add_player">
         <div class="mb-3">
             <label for="name" class="form-label">Player Name</label>
             <input type="text" class="form-control" id="name" name="name" required>
@@ -14,7 +14,7 @@
         {% for player in players %}
         <li class="list-group-item">
             {{ player.name }}
-            <a href="/putting_league/tournament/{{ tournament.id }}/remove_player/{{ player.id }}" class="btn btn-danger btn-sm float-end">Remove</a>
+            <a href="/putting_league_rr/tournament/{{ tournament.id }}/remove_player/{{ player.id }}" class="btn btn-danger btn-sm float-end">Remove</a>
         </li>
         {% endfor %}
     </ul>
@@ -23,10 +23,10 @@
 {% endif %}
 
 {% if not tournament.bracket_generated %}
-    <a href="/putting_league/tournament/{{ tournament.id }}/generate_bracket" class="btn btn-secondary mt-3 {% if tournament.bracket_generated %}disabled{% endif %}">Generate Bracket</a>
+    <a href="/putting_league_rr/tournament/{{ tournament.id }}/generate_bracket" class="btn btn-secondary mt-3 {% if tournament.bracket_generated %}disabled{% endif %}">Generate Bracket</a>
 {% else %}
-    <a href="/putting_league/tournament/{{ tournament.id }}/matches" class="btn btn-info mt-3 {% if not tournament.bracket_generated %}disabled{% endif %}">View Matches</a>
-    <a href="/putting_league/tournament/{{ tournament.id }}/results" class="btn btn-success mt-3">View Results</a>
+    <a href="/putting_league_rr/tournament/{{ tournament.id }}/matches" class="btn btn-info mt-3 {% if not tournament.bracket_generated %}disabled{% endif %}">View Matches</a>
+    <a href="/putting_league_rr/tournament/{{ tournament.id }}/results" class="btn btn-success mt-3">View Results</a>
 {% endif %}
 
 <script>

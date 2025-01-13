@@ -8,7 +8,7 @@ from blueprints.putting_league.models import Tournament, Player, Match
 putting_league = Blueprint(
     'putting_league',
     __name__,
-    url_prefix='/putting_league',
+    url_prefix='/putting_league_rr',
 )
 
 
@@ -23,8 +23,7 @@ def create_tournament():
     if request.method == 'POST':
         name = request.form['name']
         lanes = int(request.form['lanes'])
-        format = request.form['format']
-        tournament = Tournament(name=name, lanes=lanes, session_uuid=session['uuid'], format=format)
+        tournament = Tournament(name=name, lanes=lanes, session_uuid=session['uuid'])
         db.session.add(tournament)
         db.session.commit()
         return redirect(url_for('putting_league.index'))
@@ -71,11 +70,7 @@ def generate_bracket(tournament_id):
 
     players = Player.query.filter_by(tournament_id=tournament_id).all()
 
-    if tournament.format == 'round_robin':
-        generate_round_robin_bracket(tournament, players)
-    else:
-        tournament.format == 'round_robin'
-        generate_round_robin_bracket(tournament, players)
+    generate_round_robin_bracket(tournament, players)
 
     tournament.bracket_generated = True
     db.session.commit()
