@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Enter Scores - Round {{ tournament.current_round }}</h2>
+<form method="POST">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Lane</th>
+        <th scope="col">Player 1</th>
+        <th scope="col">Score</th>
+        <th scope="col">Player 2</th>
+        <th scope="col">Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for match in matches %}
+      <tr>
+        <td>{{ match.lane }}</td>
+        <td>{{ players[match.player1_id] }} ({{ match.player1.score }})</td>
+        <td>
+          {% if match.player2_id %}
+            <input type="number" class="form-control" name="p1_score_{{ match.id }}" min="0" required>
+          {% else %}
+            <input type="hidden" name="p1_score_{{ match.id }}" value="2">
+            <span>BYE</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if match.player2_id %}
+            {{ players[match.player2_id] }} ({{ match.player2.score }})
+          {% else %}
+            BYE
+          {% endif %}
+        </td>
+        <td>
+          {% if match.player2_id %}
+            <input type="number" class="form-control" name="p2_score_{{ match.id }}" min="0" required>
+          {% else %}
+            <input type="hidden" name="p2_score_{{ match.id }}" value="0">
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button type="submit" class="btn btn-primary">Submit Scores</button>
+</form>
+{% endblock %}

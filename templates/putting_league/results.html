@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Results</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Place</th>
+            <th>Player</th>
+            <th>Score</th>
+            <th>Record</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for result in results %}
+        <tr>
+            <td>{{ loop.index }}</td> <!-- Use loop.index for the place ranking -->
+            <td>{{ result.name }}</td>
+            <td>{{ result.score }}</td>
+            <td>{{ result.record }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
