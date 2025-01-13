@@ -1,20 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2 class="my-4">Add Players to {{ tournament.name }}</h2>
+<h2>Add Players to {{ tournament.name }}</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<p>Spots Remaining: {{ spots_remaining }}</p>
+
+{% if spots_remaining > 0 %}
 <form method="POST">
     <div class="mb-3">
-        <label for="player_name" class="form-label">Player Name:</label>
-        <input type="text" class="form-control" name="player_name" id="player_name" required>
+        <label for="name" class="form-label">Player Name</label>
+        <input type="text" class="form-control" id="name" name="name" maxlength="32" autofocus>
     </div>
     <button type="submit" class="btn btn-primary">Add Player</button>
 </form>
+{% endif %}
 
-<h3 class="my-4">Current Players:</h3>
+<h3>Current Players ({{ players|length }}/64)</h3>
 <ul class="list-group">
-    {% for player in tournament.players %}
-        <li class="list-group-item">{{ player.name }}</li>
+    {% for player in players %}
+    <li class="list-group-item">{{ player.name }}</li>
     {% endfor %}
 </ul>
 
-<a href="{{ url_for('putting_league_swiss.start_tournament', tournament_id=tournament.id) }}" class="my-4 btn btn-success">Start Tournament</a>
+{% if players|length >= 2 %}
+<a href="{{ url_for('putting_league_swiss.start_tournament', tournament_id=tournament.id) }}" class="btn btn-success mt-3">Start Tournament</a>
+{% endif %}
 {% endblock %}

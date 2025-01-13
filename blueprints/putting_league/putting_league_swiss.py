@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import random
 import math
 
@@ -10,6 +11,12 @@ from blueprints.putting_league.models import (
     SwissMatch as Match
 )
 
+MAX_TOURNAMENTS = 10024
+MAX_TOURNAMENT_AGE_HOURS = 24
+MAX_TOURNAMENTS_PER_SESSION = 12
+MAX_UNSTARTED_TOURNAMENT_AGE_HOURS = 1
+
+
 putting_league_swiss = Blueprint(
     'putting_league_swiss',
     __name__,
@@ -19,47 +26,88 @@ putting_league_swiss = Blueprint(
 
 @putting_league_swiss.route('/')
 def index():
+    cleanup_old_tournaments()
     tournaments = Tournament.query.filter_by(session_uuid=session['uuid']).all()
     return render_template('putting_league_swiss/index.html', tournaments=tournaments)
 
 
 @putting_league_swiss.route('/create', methods=['GET', 'POST'])
 def create_tournament():
+    tournament_count = Tournament.query.count()
+    if tournament_count >= MAX_TOURNAMENTS:
+        flash('Maximum number of tournaments reached. Please wait for old tournaments to expire.', 'error')
+        return redirect(url_for('putting_league_swiss.index'))
+
+    session_tournament_count = Tournament.query.filter_by(session_uuid=session['uuid']).count()
+    if session_tournament_count >= MAX_TOURNAMENTS_PER_SESSION:
+        flash('Maximum number of tournaments per session reached. Please delete some tournaments.', 'error')
+        return redirect(url_for('putting_league_swiss.index'))
+
     if request.method == 'POST':
         name = request.form['name']
         lanes = int(request.form['lanes'])
         tournament = Tournament(name=name, lanes=lanes, session_uuid=session['uuid'])
         db.session.add(tournament)
         db.session.commit()
-        for player_name in ["chris", "jason", "josh", "deb", "duncan"]:
-            player = Player(name=player_name, tournament_id=tournament.id)
-            db.session.add(player)
-            db.session.commit()
         return redirect(url_for('putting_league_swiss.add_players', tournament_id=tournament.id))
     return render_template('putting_league_swiss/create.html')
+
+
+def cleanup_old_tournaments():
+    """Delete tournaments based on age rules:
+    - All tournaments older than 24 hours
+    - Unstarted tournaments older than 4 hours"""
+
+    cutoff_time = datetime.utcnow() - timedelta(hours=MAX_TOURNAMENT_AGE_HOURS)
+    old_tournaments = Tournament.query.filter(Tournament.created_at < cutoff_time).all()
+
+    unstarted_cutoff = datetime.utcnow() - timedelta(hours=MAX_UNSTARTED_TOURNAMENT_AGE_HOURS)
+    old_unstarted = Tournament.query.filter(
+        Tournament.created_at < unstarted_cutoff,
+        Tournament.started == False
+    ).all()
+
+    tournaments_to_delete = list(set(old_tournaments + old_unstarted))
+
+    for tournament in tournaments_to_delete:
+        Match.query.filter_by(tournament_id=tournament.id).delete()
+        Player.query.filter_by(tournament_id=tournament.id).delete()
+        db.session.delete(tournament)
+
+    db.session.commit()
 
 
 @putting_league_swiss.route('/add_players/<string:tournament_id>', methods=['GET', 'POST'])
 def add_players(tournament_id):
     if tournament_id is None:
-        return redirect(url_for('putting_league_swiss.create_tournament'))  # Redirect if no tournament
+        return redirect(url_for('putting_league_swiss.create_tournament'))
 
     tournament = Tournament.query.get(tournament_id)
-
     if tournament.session_uuid != session['uuid']:
         return redirect(url_for('putting_league_swiss.index'))
 
     if tournament.started:
         return redirect(url_for('putting_league_swiss.start_tournament', tournament_id=tournament.id))
 
+    players = Player.query.filter_by(tournament_id=tournament.id).all()
+
     if request.method == 'POST':
-        player_name = request.form['player_name']
-        player = Player(name=player_name, tournament_id=tournament.id)
+        if len(players) >= 64:
+            flash('Tournament is full - maximum 64 players allowed', 'error')
+            return redirect(url_for('putting_league_swiss.add_players', tournament_id=tournament.id))
+
+        name = request.form['name']
+        player = Player(name=name, tournament_id=tournament.id)
         db.session.add(player)
         db.session.commit()
         return redirect(url_for('putting_league_swiss.add_players', tournament_id=tournament.id))
 
-    return render_template('putting_league_swiss/add_players.html', tournament=tournament)
+    return render_template(
+        'putting_league_swiss/add_players.html',
+        tournament=tournament,
+        players=players,
+        spots_remaining=64-len(players)
+    )
 
 
 @putting_league_swiss.route('/start/<string:tournament_id>', methods=["GET"])

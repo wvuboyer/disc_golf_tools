@@ -18,7 +18,7 @@ class Tournament(db.Model):
 class Player(db.Model):
     __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(32), nullable=False)
     tournament_id = db.Column(db.Integer, db.ForeignKey('tournament.id'), nullable=False)
 
 
